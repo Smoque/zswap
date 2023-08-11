@@ -3,6 +3,7 @@ Version:   0.5
 Release:   alt1
 License:   GPL
 Group:     System/Configuration/Hardware
+Url:       https://github.com/Smoque/zswap
 BuildArch: noarch
 Summary:   zswap init, set up & stats
 Source0:   %name

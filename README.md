@@ -4,4 +4,4 @@
 Read russian [page](https://www.altlinux.org/ZRAM/ZSWAP#ZSWAP) to learn how to use it.
 
 ## License
-Licensed under the terms of GNU GPL -- see LICENSE file for details.
+Licensed under the terms of GNU GPL (see LICENSE file for details).

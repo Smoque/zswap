@@ -1,0 +1,13 @@
+[Unit]
+Description = Init and set up %N
+DefaultDependencies = no
+After = multi-user.target
+
+[Service]
+ExecStart = %N on
+ExecStop = %N off
+ExecReload = %N reload
+RemainAfterExit = yes
+
+[Install]
+WantedBy = swap.target

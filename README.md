@@ -1,4 +1,4 @@
-**zswap** is a simple switch and informer for the eponymous kernel ability.
+**zswap** is a simple switch, configurator and informer for the eponymous kernel ability.
 
 ## Running
 Read russian [page](https://www.altlinux.org/ZRAM/ZSWAP#ZSWAP) to learn how to use it.

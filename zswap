@@ -9,98 +9,99 @@ SHARE=/usr/share/zswap
 
 # Check & use messages translation.
 [ -f $SHARE/$LANG -a -s $SHARE/$LANG ] &&
-	i18n=$SHARE/$LANG ||
-	i18n=$SHARE/C
+    i18n=$SHARE/$LANG ||
+    i18n=$SHARE/C
 
 for ((i=0;i<`grep -cv ^$ $i18n`;i++)); do
-	TEXT[$i]=`sed /^$/d $i18n | sed -n "$[i+1]p"`
+    TEXT[$i]=`sed /^$/d $i18n | sed -n "$[i+1]p"`
 done
 
 protect(){ # don't run if something's wrong,
-	unset MSG
-	[ $ZRAMS -le 0 ] || MSG="${TEXT[0]}"
-	[ $SWAPS -gt 0 ] || MSG="${TEXT[1]}"
+    unset MSG
+    [ $ZRAMS -le 0 ] || MSG="${TEXT[0]}"
+    [ $SWAPS -gt 0 ] || MSG="${TEXT[1]}"
 }
 
 stats(){
-	case `cat $SWTCH` in # is zswap in use?
-		N)	printf ${TEXT[2]}
-			protect
-			[ "$MSG" ] && {
-				echo ", $MSG"
-				exit 1
-			}
-			echo
-			RETVAL=1
-		;;
-		Y)	eval `grep -R . /sys/{module,kernel/debug}/zswap 2>&1 | sed '/uevent/d;s|.*/||;s|:|=|'`
-			PAGE=`cat $DEBUG/stored_pages`
-			[ $pool_total_size -le 0 ] && {
-				echo "${TEXT[3]}", "${TEXT[4]}"
-			} || {
-#				echo ${TEXT[7]}:  $same_filled_pages_enabled
-#				echo ${TEXT[8]}:  $non_same_filled_pages_enabled
-				echo ${TEXT[11]}: $zpool
-				echo ${TEXT[10]}: $compressor
-				echo ${TEXT[9]}:  $max_pool_percent%
-				echo ${TEXT[12]}: $accept_threshold_percent%
-				echo ${TEXT[5]}:  `bc <<< "scale=2;4096*$stored_pages/$pool_total_size"`
-				echo ${TEXT[15]}: $pool_total_size ${TEXT[6]}
-				echo ${TEXT[22]}: $pool_limit_hit
-				echo ${TEXT[14]}: $stored_pages
-				echo ${TEXT[13]}: $same_filled_pages
-				echo ${TEXT[16]}: $duplicate_entry
-				echo ${TEXT[17]}: $written_back_pages
-				echo ${TEXT[18]}: $reject_compress_poor
-				echo ${TEXT[19]}: $reject_kmemcache_fail
-				echo ${TEXT[20]}: $reject_alloc_fail
-				echo ${TEXT[21]}: $reject_reclaim_fail
-			}
-			RETVAL=0
-	esac
+    case `cat $SWTCH` in # is zswap in use?
+        N)  printf ${TEXT[2]}
+            protect
+            [ "$MSG" ] && {
+                echo ", $MSG"
+                exit 1
+            }
+            echo
+            RETVAL=1
+        ;;
+        Y)  eval `grep -R . /sys/{module,kernel/debug}/zswap 2>&1 | sed '/uevent/d;s|.*/||;s|:|=|'`
+            PAGE=`cat $DEBUG/stored_pages`
+            [ $pool_total_size -le 0 ] && {
+                echo "${TEXT[3]}", "${TEXT[4]}"
+            } || {
+#               echo ${TEXT[7]}:  $same_filled_pages_enabled
+#               echo ${TEXT[8]}:  $non_same_filled_pages_enabled
+                echo ${TEXT[11]}: $zpool
+                echo ${TEXT[10]}: $compressor
+                echo ${TEXT[9]}:  $max_pool_percent%
+                echo ${TEXT[12]}: $accept_threshold_percent%
+                echo ${TEXT[5]}:  `bc <<< "scale=2;4096*$stored_pages/$pool_total_size"`
+                echo ${TEXT[15]}: $pool_total_size ${TEXT[6]}
+                echo ${TEXT[22]}: $pool_limit_hit
+                echo ${TEXT[14]}: $stored_pages
+                echo ${TEXT[13]}: $same_filled_pages
+                echo ${TEXT[16]}: $duplicate_entry
+                echo ${TEXT[17]}: $written_back_pages
+                echo ${TEXT[18]}: $reject_compress_poor
+                echo ${TEXT[19]}: $reject_kmemcache_fail
+                echo ${TEXT[20]}: $reject_alloc_fail
+                echo ${TEXT[21]}: $reject_reclaim_fail
+            }
+            RETVAL=0
+    esac
 }
 
 reload(){
-	local CFG=sysconfig
-	case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
-		Debian|Ubuntu|Mint) CFG=default;;
-	esac
-	source /etc/$CFG/zswap
-	ARGS=(zpool compressor max_pool_percent accept_threshold_percent)
-	for ((i=0;i<${#ARGS[@]};i++)); do # Set preconfigured parameters if any
-		eval "VAL=$"${ARGS[$i]}
-		[ "$VAL" ] && echo "$VAL" >/sys/module/zswap/parameters/${ARGS[$i]}
-	done
-	RETVAL=0
+    local CFG=sysconfig
+    case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
+        Debian|Ubuntu|Mint) CFG=default;;
+    esac
+    source /etc/$CFG/zswap
+    ARGS=(zpool compressor max_pool_percent accept_threshold_percent)
+    for ((i=0;i<${#ARGS[@]};i++)); do # Set preconfigured parameters if any
+        eval "VAL=$"${ARGS[$i]}
+        [ "$VAL" ] && echo "$VAL" >/sys/module/zswap/parameters/${ARGS[$i]}
+    done
+    stats
+    RETVAL=0
 }
 
 start(){
-	protect
-	[ "$MSG" ] && {
-		echo "$MSG"
-		exit 1
-	}
-	reload
-	echo Y >$SWTCH
-	RETVAL=0
+    protect
+    [ "$MSG" ] && {
+        echo "$MSG"
+        exit 1
+    }
+    echo Y >$SWTCH
+    reload
+    RETVAL=0
 }
 
 stop(){
-	echo N >$SWTCH
-	RETVAL=0
+    echo N >$SWTCH
+    RETVAL=0
 }
 
 restart(){
-	stop
-	start
+    stop
+    start
 }
 
 case $1 in # switch zswap on/off
-	1|Y|y|on|start) start;;
-	0|N|n|off|stop) stop;;
-	restart) restart;;
-	reload)  reload;;
-	*) stats
+    1|Y|y|on|start) start;;
+    0|N|n|off|stop) stop;;
+    restart) restart;;
+    reload)  reload;;
+    *) stats
 esac
 
 exit $RETVAL

@@ -1,0 +1,41 @@
+#!/bin/sh
+# zswap:		Init, set up & stats of zswap
+#
+# chkconfig:	- 08 92
+# description:	Init, set up & stats of zswap.
+
+# Do not load RH compatibility interface.
+WITHOUT_RC_COMPAT=1
+
+# Source function library.
+. /etc/init.d/functions
+
+start(){
+	action "Enable zswap:" ${0##*/} start
+	RETVAL=$?
+	return $RETVAL
+}
+
+stop(){
+	action "Disable zswap:" ${0##*/} stop
+	RETVAL=$?
+	return $RETVAL
+}
+
+restart(){
+	stop
+	start
+}
+
+reload(){
+	${0##*/} reload
+}
+
+case "$1" in # See how we were called.
+	start|stop|restart|reload) $1;;
+	status) ${0##*/}; RETVAL=$?;;
+	*)	msg_usage "${0##*/} {start|stop|restart|reload}"
+		RETVAL=1
+esac
+
+exit $RETVAL

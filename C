@@ -1,0 +1,25 @@
+can't start: zram-swap is already in use
+can't start: swap partition not found
+zswap disabled
+zswap is not in use
+while enabled
+compression ratio
+bytes
+
+same filled pages enabled
+non same filled pages enabled
+max pool
+compressor
+zpool
+accept threshold
+
+same filled pages
+stored pages
+pool total size
+duplicate entry
+written back pages
+reject compress poor
+reject kmemcache fail
+reject alloc fail
+reject reclaim fail
+pool limit hit

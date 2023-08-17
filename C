@@ -3,6 +3,7 @@ can't start: swap partition not found
 zswap disabled
 zswap is not in use
 while enabled
+run me as superuser
 compression ratio
 bytes
 
@@ -23,5 +24,3 @@ reject kmemcache fail
 reject alloc fail
 reject reclaim fail
 pool limit hit
-bytes
-but accessible

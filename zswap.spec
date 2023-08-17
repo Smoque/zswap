@@ -1,19 +1,14 @@
-Name: zswap
-Summary: Init, set up & stats for zswap
+Name:		zswap
+Version:	0.52
+Release:	alt1
+License:	GPLv3
+Group:		System/Configuration/Hardware
+BuildArch:	noarch
+Url:		https://github.com/Smoque/zswap
+Source: 	%url/releases/download/v%version/%name-%version.tar
+Requires:	awk sed bc
+Summary:	Init, set up & stats for zswap
 Summary(ru_RU.UTF-8): Служба настройки, запуска и вывода статистики zswap
-Url: https://github.com/Smoque/zswap
-
-Version: 0.51
-Release: alt1
-License: GPLv2
-Group: System/Configuration/Hardware
-
-BuildArch: noarch
-
-#Author: Vadim A. Illarionov <gbIMoBou@ya.ru>
-Packager: Hihin Ruslan <ruslandh@altlinux.ru>
-
-Source: %name-%version.tar
 
 %description
 zswap init, set up & stats.
@@ -26,44 +21,42 @@ zswap init, set up & stats.
 %__subst s\\'$version'\\"%version"\\ %name.service
 
 %install
-install  -Dm 755 %name           %buildroot%_bindir/%name
-install  -Dm 755 %name.init      %buildroot%_initdir/%name
-install -pDm 644 %name.service   %buildroot%_unitdir/%name.service
-install -pDm 644 %name.sysconfig %buildroot%_sysconfdir/sysconfig/%name
-install -pDm 644 -t              %buildroot%_docdir/%name-%version/ README.*
-install -pDm 644 C               %buildroot%_datadir/%name/C
-install -pDm 644 ru_RU.UTF-8     %buildroot%_datadir/%name/ru_RU.UTF-8
+install  -Dm 755 %name         %buildroot%_sbindir/%name
+install  -Dm 755 %name.init    %buildroot%_initdir/%name
+install -pDm 644 %name.service %buildroot%_unitdir/%name.service
+install -pDm 644 %name.syscfg  %buildroot%_sysconfdir/sysconfig/%name
+install -pDm 644 ru_RU.UTF-8   %buildroot%_datadir/%name/ru_RU.UTF-8
+install -pDm 644 C             %buildroot%_datadir/%name/C
+install -pDm 644 -t            %buildroot%_docdir/%name-%version/ README.*
 
 %files
 %config(noreplace) %_sysconfdir/sysconfig/%name
 %doc README.ru_RU.UTF-8 README.md
-%_datadir/%name/C
 %_datadir/%name/ru_RU.UTF-8
+%_datadir/%name/C
 %_unitdir/%name.service
 %_initdir/%name
-%_bindir/%name
+%_sbindir/%name
 
 %changelog
+* Thu Aug 17 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.52-alt1
+- minor fixes
+
 * Sat Aug 12 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.51-alt1
-- Fixed stats output to the journald
+- fixed status output to the journald
 
-* Fri Aug 11 2023 Hihin Ruslan <ruslandh@altlinux.ru> 0.50-alt1
-- version 0.50
+* Wed Aug 07 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.40-alt1
+- debian detection
+- reload capability
 
-* Fri Aug 11 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.45-alt1
-- Added detection of debian forks
-
-* Thu Aug 10 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.40-alt1
-- Added reload function
-
-* Mon Jul 31 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.21-alt1
-- Added russian translation and runtime options
+* Wed Aug 02 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.30-alt1
+- russian localization
 
 * Wed Jul 26 2023 Hihin Ruslan <ruslandh@altlinux.ru> 0.20-alt1
-- Added russian documentation
+- russian documentation
 
 * Fri Jul 21 2023 Hihin Ruslan <ruslandh@altlinux.ru> 0.11-alt1
-- Initial build to Sisyphus
+- first build for Sisyphus
 
-* Thu Jul 20 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.10-alt1
-- Initial build
+* Thu Jul 20 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.1-alt1
+- initial build

@@ -3,6 +3,7 @@ can't start: swap partition not found
 zswap disabled
 zswap is not in use
 while enabled
+run me as superuser
 compression ratio
 bytes
 

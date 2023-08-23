@@ -26,20 +26,18 @@ install  -Dm 755 %name.init    %buildroot%_initdir/%name
 install -pDm 644 %name.service %buildroot%_unitdir/%name.service
 install -pDm 644 %name.syscfg  %buildroot%_sysconfdir/sysconfig/%name
 install -pDm 644 ru_RU.UTF-8   %buildroot%_datadir/%name/ru_RU.UTF-8
-install -pDm 644 C             %buildroot%_datadir/%name/C
 install -pDm 644 -t            %buildroot%_docdir/%name-%version/ README.*
 
 %files
 %config(noreplace) %_sysconfdir/sysconfig/%name
 %doc README.ru_RU.UTF-8 README.md
 %_datadir/%name/ru_RU.UTF-8
-%_datadir/%name/C
 %_unitdir/%name.service
 %_initdir/%name
 %_sbindir/%name
 
 %changelog
-* Thu Aug 17 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.52-alt1
+* Wed Aug 23 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.52-alt1
 - minor fixes
 
 * Sat Aug 12 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.51-alt1

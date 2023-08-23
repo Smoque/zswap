@@ -26,7 +26,6 @@ ZSWAP(8)
 	/etc/rc.d/init.d/zswap
 	/etc/sysconfig/zswap
 	/usr/share/zswap/ru_RU.UTF-8
-	/usr/share/zswap/C
 	/usr/sbin/zswap
 
 СМОТРИТЕ ТАКЖЕ

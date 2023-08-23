@@ -48,7 +48,7 @@ stats(){
 					*)			end=
 				esac
 				[ "$i18n" ] &&
-					TEXT="`awk -F'\t' '/^'$d'/{print $NF}' $i18n`" ||
+					TEXT="`awk -F'\t' '/^\y'$d'\y/{print $NF}' $i18n`" ||
 					TEXT="`echo ${d^} | sed 's|_percent||;s|_| |g'`"
 				echo "$TEXT": ${!d}$end
 			done

@@ -1,13 +1,13 @@
-Name:       zswap
-Version:    0.52
-Release:    alt1
-License:    GPLv3
-Group:      System/Configuration/Hardware
-BuildArch:  noarch
-Url:        https://github.com/Smoque/zswap
-Source:     %url/releases/download/v%version/%name-%version.tar
-Requires:   awk sed bc
-Summary:    Init, set up & stats for zswap
+Name:		zswap
+Version:	0.52
+Release:	alt1
+License:	GPLv3
+Group:		System/Configuration/Hardware
+BuildArch:	noarch
+Url:		https://github.com/Smoque/zswap
+Source:		%url/releases/download/v%version/%name-%version.tar
+Requires:	awk sed bc
+Summary:	Init, set up & stats for zswap
 Summary(ru_RU.UTF-8): Служба настройки, запуска и вывода статистики zswap
 
 %description
@@ -38,9 +38,12 @@ install -pDm 644 -t            %buildroot%_docdir/%name-%version/ README.*
 
 %changelog
 * Wed Aug 23 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.52-alt1
-- minor fixes
+- script rewrite
 
-* Sat Aug 12 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.51-alt1
+* Thu Aug 17 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.51-alt1
+- fixed status output to the journald
+
+* Sat Aug 12 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.50-alt1
 - fixed status output to the journald
 
 * Wed Aug 07 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.40-alt1

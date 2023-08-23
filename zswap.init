@@ -6,31 +6,31 @@ WITHOUT_RC_COMPAT=1     # Do not load RH compatibility interface.
 . /etc/init.d/functions # Source function library.
 
 start(){
-    action "Enable zswap:" ${0##*/} start
-    RETVAL=$?
-    return $RETVAL
+	action "Enable zswap:" ${0##*/} start
+	RETVAL=$?
+	return $RETVAL
 }
 
 stop(){
-    action "Disable zswap:" ${0##*/} stop
-    RETVAL=$?
-    return $RETVAL
+	action "Disable zswap:" ${0##*/} stop
+	RETVAL=$?
+	return $RETVAL
 }
 
 reload(){
-    action "Reconfigure zswap:" ${0##*/} reload
+	action "Reconfigure zswap:" ${0##*/} reload
 }
 
 restart(){
-    stop
-    start
+	stop
+	start
 }
 
 case "$1" in # See how we were called.
-    start|stop|restart|reload) $1;;
-    status) ${0##*/}; RETVAL=$?;;
-    *)  msg_usage "${0##*/} [start|stop|restart|reload]"
-        RETVAL=1
+	start|stop|restart|reload) $1;;
+	status)			 ${0##*/}; RETVAL=$?;;
+	*)	msg_usage	"${0##*/} [start|stop|restart|reload]"
+		RETVAL=1
 esac
 
 exit $RETVAL

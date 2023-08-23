@@ -1,121 +1,107 @@
 #!/bin/bash
 
 PARMS=/sys/module/zswap/parameters
+SWTCH=$PARMS/enabled
+SWAPS=`swapon | grep -cv zram`
+ZRAMS=`swapon | grep -c  zram`
 SHARE=/usr/share/zswap
 
-# check & use messages translation
+# Check & use messages translation.
 [ -f $SHARE/$LANG -a -s $SHARE/$LANG ] &&
-    i18n=$SHARE/$LANG ||
-    i18n=$SHARE/C
+	i18n=$SHARE/$LANG ||
+	i18n=$SHARE/C
 
 for ((i=0; i<`grep -cv ^$ $i18n`; i++)); do
-    MSG[$i]=`sed /^$/d $i18n | sed -n "$[i+1]p"`
+	TEXT[$i]=`sed /^$/d $i18n | sed -n "$[i+1]p"`
 done
 
 [ $UID -eq 0 ] || { # run as root only
-    echo "${MSG[5]}".
-    exit 1
+	echo "${TEXT[5]}".
+	exit 1
 }
 
 protect(){ # don't run if something's wrong
-    unset DENY
-    [ `swapon | grep -c  zram` -le 0 ] || DENY="${MSG[0]}"
-    [ `swapon | grep -cv zram` -gt 0 ] || DENY="${MSG[1]}"
+	unset MSG
+	[ $ZRAMS -le 0 ] || MSG="${TEXT[0]}"
+	[ $SWAPS -gt 0 ] || MSG="${TEXT[1]}"
 }
 
-stats(){ # show current situation
-    [ `cat $PARMS/enabled` != Y ] && {
-        printf "${MSG[2]}"
-        protect
-        [ "$DENY" ] && {
-            echo ", $DENY"
-            exit 1
-        }
-        echo
-        RETVAL=1
-    } || {
-        eval `grep -R . /sys/{module,kernel/debug}/zswap 2>&1 | sed '/uevent/d;s|.*/||;s|:|=|'`
-        [ $pool_total_size -le 0 ] && {
-            echo "${MSG[3]}", "${MSG[4]}"
-        } || {
-#           echo ${MSG[8]}:  $same_filled_pages_enabled
-#           echo ${MSG[9]}:  $non_same_filled_pages_enabled
-            echo ${MSG[12]}: $zpool
-            echo ${MSG[11]}: $compressor
-            echo ${MSG[10]}:  $max_pool_percent%
-            echo ${MSG[13]}: $accept_threshold_percent%
-            echo ${MSG[6]}:  `bc <<< "scale=2;4096*$stored_pages/$pool_total_size"`
-            echo ${MSG[16]}: $pool_total_size ${MSG[7]}
-            echo ${MSG[23]}: $pool_limit_hit
-            echo ${MSG[15]}: $stored_pages
-            echo ${MSG[14]}: $same_filled_pages
-            echo ${MSG[17]}: $duplicate_entry
-            echo ${MSG[18]}: $written_back_pages
-            echo ${MSG[19]}: $reject_compress_poor
-            echo ${MSG[20]}: $reject_kmemcache_fail
-            echo ${MSG[21]}: $reject_alloc_fail
-            echo ${MSG[22]}: $reject_reclaim_fail
-        }
-        RETVAL=0
-    }
+stats(){
+	[ `cat $SWTCH` == Y ] && {
+		eval `grep -R . /sys/{module,kernel/debug}/zswap 2>&1 | sed '/uevent/d;s|.*/||;s|:|=|'`
+		[ $pool_total_size -le 0 ] && {
+			echo "${TEXT[3]}", "${TEXT[4]}"
+		} || {
+#			echo ${TEXT[8]}:  $same_filled_pages_enabled
+#			echo ${TEXT[9]}:  $non_same_filled_pages_enabled
+			echo ${TEXT[12]}: $zpool
+			echo ${TEXT[11]}: $compressor
+			echo ${TEXT[10]}: $max_pool_percent%
+			echo ${TEXT[13]}: $accept_threshold_percent%
+			echo ${TEXT[6]}: `bc <<< "scale=2;4096*$stored_pages/$pool_total_size"`
+			echo ${TEXT[16]}: $pool_total_size ${TEXT[6]}
+			echo ${TEXT[23]}: $pool_limit_hit
+			echo ${TEXT[15]}: $stored_pages
+			echo ${TEXT[14]}: $same_filled_pages
+			echo ${TEXT[17]}: $duplicate_entry
+			echo ${TEXT[18]}: $written_back_pages
+			echo ${TEXT[19]}: $reject_compress_poor
+			echo ${TEXT[20]}: $reject_kmemcache_fail
+			echo ${TEXT[21]}: $reject_alloc_fail
+			echo ${TEXT[22]}: $reject_reclaim_fail
+		}
+		RETVAL=0
+	} || {
+		printf "${TEXT[2]}"
+		protect
+		[ "$MSG" ] && {
+			echo ", $MSG"
+			exit 1
+		}
+		echo
+		RETVAL=1
+	}
 }
 
-reload(){ # set preconfigured parameters if any
-    local CFG=sysconfig
-    case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
-        Debian|Ubuntu|Mint) CFG=default;;
-    esac
-    source /etc/$CFG/zswap
-    ARGS=(zpool compressor max_pool_percent accept_threshold_percent)
-    for ((i=0; i<${#ARGS[@]}; i++)); do
-        eval "VAL=$"${ARGS[$i]}
-        [ "$VAL" ] && echo "$VAL" >$PARMS/${ARGS[$i]}
-    done
-    stats
-    RETVAL=0
-}
-
-reload(){ # set preconfigured parameters if any
-    local CFG=sysconfig
-    case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
-        Debian|Ubuntu|Mint) CFG=default;;
-    esac
-    source /etc/$CFG/zswap
-    ARGS=(zpool compressor max_pool_percent accept_threshold_percent)
-    for ((i=0; i<${#ARGS[@]}; i++)); do
-        eval "VAL=$"${ARGS[$i]}
-        [ "$VAL" ] && echo "$VAL" >$PARMS/${ARGS[$i]}
-    done
-    stats
-    RETVAL=0
+reload(){ # Set preconfigured parameters if any
+	local CFG=sysconfig
+	case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
+		Debian|Ubuntu|Mint) CFG=default;;
+	esac
+	source /etc/$CFG/zswap
+	for ARG in `ls -I *enabled $PARMS`; do
+		[ "${!ARG}" ] && echo ${!ARG} >$PARMS/${ARG}
+	done
+	stats
+	RETVAL=0
 }
 
 start(){
-    protect
-    [ "$DENY" ] && {
-        echo "$DENY"
-        exit 1
-    }
-    echo Y >$PARMS/enabled
-    reload
-    RETVAL=0
+	protect
+	[ "$MSG" ] && {
+		echo "$MSG"
+		exit 1
+	}
+	echo Y >$SWTCH
+	reload
+	RETVAL=0
 }
 
 stop(){
-    echo N >$PARMS/enabled
-    RETVAL=0
+	echo N >$SWTCH
+	RETVAL=0
 }
 
 restart(){
-    stop
-    start
+	stop
+	start
 }
 
 case $1 in # switch zswap on/off
-    1|Y|y|on|start) start;;
-    0|N|n|off|stop) stop ;;
-    restart|reload) $1   ;;
-    *)              stats
+	1|Y|y|on|start) start;;
+	0|N|n|off|stop) stop ;;
+	restart|reload) $1   ;;
+	*) stats
 esac
 
 exit $RETVAL

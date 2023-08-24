@@ -1,8 +1,8 @@
 Impossible			запуск невозможен
 Zram				задействован zram-swap
 NoSwap				отсутствует раздел подкачки
-Disabled			zswap отключён
-NotInUse			zswap не используется
+Disabled			отключён
+NotInUse			не используется
 Possible			хотя включён
 NoRoot				Запуск разрешён только суперпользователю
 Ratio				Степень сжатия

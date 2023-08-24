@@ -1,0 +1,27 @@
+Impossible			запуск невозможен
+Zram				задействован zram-swap
+NoSwap				отсутствует раздел подкачки
+Disabled			отключён
+NotInUse			не используется
+Possible			хотя включён
+NoRoot				Запуск разрешён только суперпользователю
+Ratio				Степень сжатия
+byte				байт
+
+same_filled_pages_enabled	Вывод числа похожих страниц
+non_same_filled_pages_enabled	Вывод числа непохожих страниц
+max_pool_percent		Выделение памяти под пул
+compressor			Тип сжатия
+zpool				Тип пула
+accept_threshold_percent	Сжатие при заполнении пула на
+
+same_filled_pages		Страниц с похожим содержимым
+stored_pages			Страниц сжато
+pool_total_size			Занятость пула
+duplicate_entry			Дубликатов страниц
+written_back_pages		Возвратов страниц
+reject_compress_poor		Отказов ввиду слабого сжатия
+reject_kmemcache_fail		Отказов по сбою кэш-памяти
+reject_alloc_fail		Отказов по сбою выделения памяти
+reject_reclaim_fail		Отказов по сбою возврата
+pool_limit_hit			Превышение лимита пула

@@ -1,0 +1,127 @@
+#!/bin/bash
+
+PARMS=/sys/module/zswap/parameters
+SHARE=/usr/share/zswap
+
+# In case of no translations use defaults:
+Disabled="disabled"
+Impossible="can't start"
+NoPool="is not in use: pool not allocated"
+NoRoot="Run me as superuser"
+NoSwap="swap partition not found"
+Ratio="Compression ratio"
+Zram="zram-swap is already in use"
+
+[ -f $SHARE/$LANG -a -s $SHARE/$LANG ] && { # check & use messages translation
+	i18n=$SHARE/$LANG
+	for W in Disabled Impossible NoPool NoRoot NoSwap Ratio Zram; do
+		eval $W="\"`awk -F'\t' '/^'$W'/{print $NF}' $i18n`\""
+	done
+}
+
+[ $UID -eq 0 ] || { # run as root only
+	echo "$NoRoot".
+	exit 1
+}
+
+protect(){ # don't run if something's wrong
+	unset MSG
+	ZRAMS=`swapon | grep -c  zram`
+	SWAPS=`swapon | grep -cv zram`
+	[ $ZRAMS -le 0 ] || MSG="$Zram"
+	[ $SWAPS -gt 0 ] || MSG="$NoSwap"
+}
+
+type(){ # print aligned headers with values
+	printf "%-22s" "$1"
+	[ "$i18n" ] && {
+		for ((i=$[4-$LONG/8];i>0;i--)); do
+			printf "\t"
+		done
+	} || printf "\t   "
+	printf " : %12s%s\n" "$2" "$end"
+}
+
+show(){ # convert headers from variable names or translate 'em
+	for d in `ls -I *enabled $1`; do
+		case $d in
+			*size)	[ "$i18n" ] &&
+						end=" `awk '/^byte/{print $2}' $i18n`" ||
+						end=" bytes";;
+			*percent)	end="%";;
+			*)			end=
+		esac
+		[ "$i18n" ] &&
+			TEXT=`sed -n "s|^$d\b\s*||p" $i18n` ||
+			TEXT=`echo ${d^} | sed 's|_percent||;s|_| |g'`
+		LONG="${#TEXT}"
+		type "$TEXT" "${!d}"
+	done
+}
+
+stats(){ # get current values
+	[ `cat $PARMS/enabled` == Y ] && {
+		eval `grep -R . $PARMS /sys/kernel/debug/zswap | sed 's|.*/||;s|:|=|'`
+		show /sys/module/zswap/parameters/
+		[ $pool_total_size -le 0 ] && {
+			echo "zswap $NoPool"
+		} || {
+			show /sys/kernel/debug/zswap
+			LONG="${#Ratio}"
+			type "$Ratio" `bc<<<"scale=2;4096*$stored_pages/$pool_total_size"`
+		}
+		RETVAL=0
+	} || {
+		printf "zswap $Disabled"
+		protect
+		[ "$MSG" ] && {
+			echo ", $Impossible: $MSG"
+			exit 1
+		}
+		echo
+		RETVAL=1
+	}
+}
+
+reload(){ # set preconfigured parameters if any
+	local CFG=sysconfig
+	case `lsb_release -a 2>&1 | awk '/Distributor ID/{print $3}'` in
+		Debian|Ubuntu|Mint) CFG=default;;
+	esac
+	source /etc/$CFG/zswap
+	for ARG in `ls -I *enabled $PARMS`; do
+		[ "${!ARG}" ] && echo ${!ARG} >$PARMS/${ARG}
+	done
+	stats
+	RETVAL=0
+}
+
+start(){
+	protect
+	[ "$MSG" ] && {
+		echo "$MSG"
+		exit 1
+	}
+	echo Y >$PARMS/enabled
+	reload
+	RETVAL=0
+}
+
+stop(){
+	echo N >$PARMS/enabled
+	RETVAL=0
+}
+
+restart(){
+	stop
+	start
+}
+
+case $1 in # switch zswap on/off
+	1|Y|y|on|start) start;;
+	0|N|n|off|stop) stop ;;
+	restart|reload) $1   ;;
+	*) stats
+esac
+
+exit $RETVAL

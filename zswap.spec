@@ -37,7 +37,7 @@ install -pDm 644 -t            %buildroot%_docdir/%name-%version/ README.*
 %_sbindir/%name
 
 %changelog
-* Fri Sep 23 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.53-alt1
+* Fri Sep 01 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.53-alt1
 - minor bugfixes
 
 * Wed Aug 23 2023 Vadim A. Illarionov <gbIMoBou@ya.ru> 0.52-alt1
